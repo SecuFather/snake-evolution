@@ -72,3 +72,11 @@ bool Snake::move(int order){
 bool Snake::move2(int dir){
     return move(dir - direction);
 }
+
+bool Snake::restart(int xy0, int d0){
+    length = xy0;
+    direction = d0;
+    for(int i=0; i<xy0; ++i){
+        snake[i] = xy0-1-i;
+    }
+}

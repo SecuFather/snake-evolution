@@ -18,6 +18,7 @@ public:
 
     bool move(int order);
     bool move2(int dir);
+    bool restart(int xy0, int d0);
 
     inline int abs(int x)const{ return x<0 ? -x : x; }
     inline int getDirection()const{ return direction; }

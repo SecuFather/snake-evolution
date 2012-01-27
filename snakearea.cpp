@@ -101,6 +101,11 @@ QBrush SnakeArea::getBrush(int i){
     return QBrush(Qt::black);
 }
 
+void SnakeArea::restart(){
+    initFields();
+    snake->restart(10, Snake::MOVING_RIGHT);
+}
+
 void SnakeArea::insertFood(){
     int x = qrand()%(colls*rows);
     int *s = snake->getSnake();
@@ -114,7 +119,9 @@ void SnakeArea::insertFood(){
 }
 
 void SnakeArea::moveSnake(){
-    snake->move2(key);
+    if(!snake->move2(key)){
+        restart();
+    }
     update();
     resetKey();
     if(snake->isFoodEaten()){

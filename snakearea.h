@@ -40,6 +40,7 @@ protected:
     void initPainter(QPainter *painter);
     void drawCells(QPainter *painter);
     QBrush getBrush(int i);        
+    void restart();
 
     inline int xy(int x, int y)const { return y*colls + x; }    
 };
