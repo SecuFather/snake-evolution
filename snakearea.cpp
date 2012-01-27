@@ -8,18 +8,20 @@
 #include <QTimer>
 
 
+#include "snakefunctions.h"
+
 SnakeArea::SnakeArea(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SnakeArea), colls(40), rows(20), fields(new int[colls*rows]),
     snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420)), key(snake->getDirection()),
     timer(new QTimer(this))
-{    
+{
     ui->setupUi(this);    
     initFields();
-    qsrand(QTime().msecsTo(QTime(0,0)));
+    qsrand(QTime().currentTime().msecsTo(QTime(0,0)));
     insertFood();
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(moveSnake()));
-    timer->start(100);
+    timer->start(300);
 }
 
 SnakeArea::~SnakeArea()
@@ -49,6 +51,13 @@ void SnakeArea::keyPressEvent(QKeyEvent *e){
         break;
     case Qt::Key_Down:
         key = Snake::MOVING_DOWN;
+        break;
+    case Qt::Key_Space:
+        if(timer->isActive()){
+            timer->stop();
+        }else{
+            timer->start();
+        }
         break;
     }
 
@@ -127,6 +136,30 @@ void SnakeArea::moveSnake(){
     if(snake->isFoodEaten()){
         insertFood();
     }
+    int k = 7;
+    int w = -1;
+    int r = -1;
+    SnakeFunction **sf = new SnakeFunction*[k];
+    SnakeFunction::snake = snake;
+    sf[++w] = new IsMovingRight();
+    sf[++w] = new IsMovingLeft();
+    sf[++w] = new IsMovingUp();
+    sf[++w] = new IsMovingDown();
+    sf[++w] = new IsFoodAhead();
+    sf[++w] = new IsFoodRight();
+    sf[++w] = new IsFoodLeft();
+    qDebug("-----------------");
+    qDebug(("isMovingRight " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isMovingLeft " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isMovingUp " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isMovingDown " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isFoodAhead " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isFoodRight " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isFoodLeft " + QString::number(sf[++r]->exec())).toAscii());
+    for(int i=0; i<k; ++i){
+        delete sf[i];
+    }
+    delete[] sf;
 }
 
 void SnakeArea::resetKey(){

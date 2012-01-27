@@ -73,10 +73,47 @@ bool Snake::move2(int dir){
     return move(dir - direction);
 }
 
-bool Snake::restart(int xy0, int d0){
+void Snake::restart(int xy0, int d0){
     length = xy0;
     direction = d0;
     for(int i=0; i<xy0; ++i){
         snake[i] = xy0-1-i;
+    }
+}
+
+int Snake::findFood(){
+    switch(direction){
+    case Snake::MOVING_RIGHT:
+    case Snake::MOVING_LEFT:
+        if(sgn(((snake[0] % colls) - (food % colls)))*(1-direction/2*2) < 0){
+            return Snake::FOOD_BEHIND;
+        }else{
+            if(sgn(((snake[0] / colls) - (food / colls)))*(1-direction/2*2) < 0){
+                return Snake::FOOD_LEFT;
+            }else{
+                if((snake[0] / colls) == (food / colls)){
+                    return Snake::FOOD_AHEAD;
+                }else{
+                    return Snake::FOOD_RIGHT;
+                }
+            }
+        }
+        break;
+    case Snake::MOVING_UP:
+    case Snake::MOVING_DOWN:
+        if(sgn(((snake[0] / colls) - (food / colls)))*(1-direction/2*2) < 0){
+            return Snake::FOOD_BEHIND;
+        }else{
+            if(sgn(((snake[0] % colls) - (food % colls)))*(1-direction/2*2) > 0){
+                return Snake::FOOD_LEFT;
+            }else{
+                if((snake[0] % colls) == (food % colls)){
+                    return Snake::FOOD_AHEAD;
+                }else{
+                    return Snake::FOOD_RIGHT;
+                }
+            }
+        }
+        break;
     }
 }

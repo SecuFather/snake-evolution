@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv){
     QApplication app(argc, argv);
-    SnakeArea sa;
+    SnakeArea sa;   
 
     sa.show();
     return app.exec();

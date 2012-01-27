@@ -7,7 +7,8 @@ SOURCES += \
 HEADERS += \
     snakearea.h \
     snake.h \
-    snakecontrol.h
+    snakecontrol.h \
+    snakefunctions.h
 
 FORMS += \
     snakearea.ui
