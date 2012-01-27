@@ -6,21 +6,11 @@
 
 class Snake;
 class QPainter;
+class QTimer;
 
 namespace Ui {
 class SnakeArea;
 }
-class SnakeArea;
-
-class SnakeTimer : public QThread{
-public:
-    SnakeTimer(SnakeArea *sa, int delay=100) : sa(sa), delay(delay){ start(); }
-
-    void run();
-protected:    
-    SnakeArea *sa;
-    int delay;    
-};
 
 class SnakeArea : public QDialog
 {
@@ -35,17 +25,16 @@ public:
 
     void resetKey();
     void insertFood();
-    
-    inline int getKey()const{ return key; }
-    inline Snake *getSnake()const{ return snake; }
+public slots:
+    void moveSnake();
 
 private:
     Ui::SnakeArea *ui;
 protected:
     int colls, rows, *fields;
-    Snake *snake;    
-    SnakeTimer *st;
+    Snake *snake;        
     int key;
+    QTimer *timer;
 
     void initFields();
     void initPainter(QPainter *painter);

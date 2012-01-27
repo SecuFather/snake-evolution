@@ -5,34 +5,26 @@
 #include <QPainter>
 #include <QKeyEvent>
 #include <QTime>
+#include <QTimer>
 
-void SnakeTimer::run(){
-    while(true){        
-        msleep(delay);
-        sa->getSnake()->move2(sa->getKey());
-        sa->update();
-        sa->resetKey();
-        if(sa->getSnake()->isFoodEaten()){
-            sa->insertFood();
-        }
-    }
-}
 
 SnakeArea::SnakeArea(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SnakeArea), colls(40), rows(20), fields(new int[colls*rows]),
-    snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420)),
-    st(new SnakeTimer(this)), key(snake->getDirection())
+    snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420)), key(snake->getDirection()),
+    timer(new QTimer(this))
 {    
     ui->setupUi(this);    
     initFields();
     qsrand(QTime().msecsTo(QTime(0,0)));
     insertFood();
+    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(moveSnake()));
+    timer->start(100);
 }
 
 SnakeArea::~SnakeArea()
 {
-    delete st;
+    delete timer;
     delete snake;
     delete[] fields;
     delete ui;        
@@ -80,8 +72,8 @@ void SnakeArea::drawCells(QPainter *painter){
     int cellHeight=height()/rows;
 
     fields[snake->getLast()] = 0; //background color
-    fields[snake->getFirst()] = 2; //snake's head color
     fields[snake->getFood()] = 3; //food's color
+    fields[snake->getFirst()] = 2; //snake's head color    
 
     for(int i=1; i<snake->getLenght(); ++i){
         fields[snake->getSnake()[i]] = 1; //snake color
@@ -119,6 +111,15 @@ void SnakeArea::insertFood(){
         }
     }
     snake->setFood(x);
+}
+
+void SnakeArea::moveSnake(){
+    snake->move2(key);
+    update();
+    resetKey();
+    if(snake->isFoodEaten()){
+        insertFood();
+    }
 }
 
 void SnakeArea::resetKey(){
