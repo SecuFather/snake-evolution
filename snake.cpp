@@ -1,8 +1,8 @@
 #include "snake.h"
 
-Snake::Snake(int colls, int rows, int xy0, int d0, int food):
+Snake::Snake(int colls, int rows, int xy0, int d0, int food, int *fields):
     colls(colls), rows(rows), length(xy0+1), snake(new int[colls*rows]),
-    direction(d0), last(0), food(food), foodEaten(false)
+    direction(d0), last(0), food(food), foodEaten(false), fields(fields)
 {
     for(int i=0; i<length; ++i){
         snake[i] = length-1-i;
@@ -117,3 +117,87 @@ int Snake::findFood(){
         break;
     }
 }
+
+int Snake::findDanger(){
+    int danger = 0;
+    if(snake[0] % colls == 0 || fields[snake[0]-1] > Snake::FOOD_CODE){
+        switch(direction){
+        case MOVING_LEFT:
+            danger += Snake::DANGER_AHEAD;
+            break;
+        case MOVING_UP:
+            danger += Snake::DANGER_LEFT;
+            break;
+        case MOVING_DOWN:
+            danger += Snake::DANGER_RIGHT;
+            break;
+        }
+    }
+    if(direction == MOVING_LEFT &&
+            (snake[0] % colls == 0 ||
+            (snake[0]-1) % colls == 0 ||
+            fields[snake[0]-2] > Snake::FOOD_CODE) ){
+        danger += Snake::DANGER__TWO_AHEAD;
+    }
+    if((snake[0]+1) % colls == 0 || fields[snake[0]+1] > Snake::FOOD_CODE){
+        switch(direction){
+        case MOVING_RIGHT:
+            danger += Snake::DANGER_AHEAD;
+            break;
+        case MOVING_DOWN:
+            danger += Snake::DANGER_LEFT;
+            break;
+        case MOVING_UP:
+            danger += Snake::DANGER_RIGHT;
+            break;
+        }
+    }
+    if(direction == MOVING_RIGHT &&
+            ((snake[0]+1) % colls == 0 ||
+            (snake[0]+2) % colls == 0 ||
+            fields[snake[0]+2] > Snake::FOOD_CODE) ){
+        danger += Snake::DANGER__TWO_AHEAD;
+    }
+    if(snake[0] / colls == 0|| fields[snake[0]-colls] > Snake::FOOD_CODE){
+        switch(direction){
+        case MOVING_UP:
+            danger += Snake::DANGER_AHEAD;
+            break;
+        case MOVING_RIGHT:
+            danger += Snake::DANGER_LEFT;
+            break;
+        case MOVING_LEFT:
+            danger += Snake::DANGER_RIGHT;
+            break;
+        }
+    }
+    if(direction == MOVING_UP &&
+            (snake[0] / colls == 0 ||
+            (snake[0]-colls) / colls == 0 ||
+            fields[snake[0]-colls-colls] > Snake::FOOD_CODE) ){
+        danger += Snake::DANGER__TWO_AHEAD;
+    }
+    if(snake[0] / colls == rows - 1 || fields[snake[0]+colls] > Snake::FOOD_CODE){
+        switch(direction){
+        case MOVING_DOWN:
+            danger += Snake::DANGER_AHEAD;
+            break;
+        case MOVING_LEFT:
+            danger += Snake::DANGER_LEFT;
+            break;
+        case MOVING_RIGHT:
+            danger += Snake::DANGER_RIGHT;
+            break;
+        }
+    }
+    if(direction == MOVING_DOWN &&
+            (snake[0] / colls == rows-1 ||
+            (snake[0]+colls) / colls == rows-1 ||
+            fields[snake[0]+colls+colls] > Snake::FOOD_CODE) ){
+        danger += Snake::DANGER__TWO_AHEAD;
+    }
+
+    return danger;
+}
+
+

@@ -13,7 +13,7 @@
 SnakeArea::SnakeArea(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SnakeArea), colls(40), rows(20), fields(new int[colls*rows]),
-    snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420)), key(snake->getDirection()),
+    snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420, fields)), key(snake->getDirection()),
     timer(new QTimer(this))
 {
     ui->setupUi(this);    
@@ -67,7 +67,7 @@ void SnakeArea::keyPressEvent(QKeyEvent *e){
 void SnakeArea::initFields(){
     for(int i=0; i<colls; ++i){
         for(int j=0; j<rows; ++j){
-            fields[xy(i, j)] = 0; //background color
+            fields[xy(i, j)] = Snake::FIELD_CODE; //background color
         }
     }
 }
@@ -80,12 +80,12 @@ void SnakeArea::drawCells(QPainter *painter){
     int cellWidth=width()/colls;
     int cellHeight=height()/rows;
 
-    fields[snake->getLast()] = 0; //background color
-    fields[snake->getFood()] = 3; //food's color
-    fields[snake->getFirst()] = 2; //snake's head color    
+    fields[snake->getLast()] = Snake::FIELD_CODE; //background color
+    fields[snake->getFood()] = Snake::FOOD_CODE; //food's color
+    fields[snake->getFirst()] = Snake::SNAKE_HEAD_CODE; //snake's head color
 
     for(int i=1; i<snake->getLenght(); ++i){
-        fields[snake->getSnake()[i]] = 1; //snake color
+        fields[snake->getSnake()[i]] = Snake::SNAKE_CODE; //snake color
     }
 
     for(int i=0; i<colls; ++i){
@@ -98,16 +98,18 @@ void SnakeArea::drawCells(QPainter *painter){
 
 QBrush SnakeArea::getBrush(int i){
     switch(i){
-    case 0:
+    case Snake::FIELD_CODE:
         return QBrush(Qt::white);
-    case 1:
+    case Snake::SNAKE_CODE:
         return QBrush(Qt::green);
-    case 2:
+    case Snake::SNAKE_HEAD_CODE:
         return QBrush(Qt::red);
-    case 3:
+    case Snake::FOOD_CODE:
         return QBrush(Qt::magenta);
+    case Snake::DANGER_CODE:
+        return QBrush(Qt::black);
     }
-    return QBrush(Qt::black);
+    return QBrush(Qt::yellow);
 }
 
 void SnakeArea::restart(){
@@ -136,7 +138,7 @@ void SnakeArea::moveSnake(){
     if(snake->isFoodEaten()){
         insertFood();
     }
-    int k = 7;
+    int k = 11;
     int w = -1;
     int r = -1;
     SnakeFunction **sf = new SnakeFunction*[k];
@@ -145,17 +147,29 @@ void SnakeArea::moveSnake(){
     sf[++w] = new IsMovingLeft();
     sf[++w] = new IsMovingUp();
     sf[++w] = new IsMovingDown();
+
     sf[++w] = new IsFoodAhead();
     sf[++w] = new IsFoodRight();
     sf[++w] = new IsFoodLeft();
+
+    sf[++w] = new IsDangerAhead();
+    sf[++w] = new IsDangerLeft();
+    sf[++w] = new IsDangerRight();
+    sf[++w] = new IsDangerTwoAhead();
     qDebug("-----------------");
     qDebug(("isMovingRight " + QString::number(sf[++r]->exec())).toAscii());
     qDebug(("isMovingLeft " + QString::number(sf[++r]->exec())).toAscii());
     qDebug(("isMovingUp " + QString::number(sf[++r]->exec())).toAscii());
     qDebug(("isMovingDown " + QString::number(sf[++r]->exec())).toAscii());
+
     qDebug(("isFoodAhead " + QString::number(sf[++r]->exec())).toAscii());
     qDebug(("isFoodRight " + QString::number(sf[++r]->exec())).toAscii());
     qDebug(("isFoodLeft " + QString::number(sf[++r]->exec())).toAscii());
+
+    qDebug(("isDangerAhead " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isDangerLeft " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isDangerRight " + QString::number(sf[++r]->exec())).toAscii());
+    qDebug(("isDangerTwoAhead " + QString::number(sf[++r]->exec())).toAscii());
     for(int i=0; i<k; ++i){
         delete sf[i];
     }
