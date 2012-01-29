@@ -2,7 +2,10 @@
 #include "snakefunctions.h"
 #include <QTime>
 
-SnakeControl::SnakeControl() : n(65535){
+int SnakeControl::max = -1;
+
+SnakeControl::SnakeControl() :
+    n(65535), counter(0), timeout(SnakeControl::TIMEOUT){
     sf = new SnakeFunction*[n];
     for(int i=0; i<n/2; ++i){
         sf[i] = randomSensor();
@@ -80,5 +83,18 @@ bool SnakeControl::moveSnake(){
         ans = sf[pos]->exec();
         k *= 2;
     }
-    return ans != SnakeFunction::CRASH;
+    if(ans == SnakeFunction::CRASH || --timeout == 0){
+        return false;
+    }else{
+        return true;
+    }
+}
+
+bool SnakeControl::setMax(int x){
+    if(x > SnakeControl::max){
+        SnakeControl::max = x;
+        return true;
+    }else{
+        return false;
+    }
 }

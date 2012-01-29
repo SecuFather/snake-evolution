@@ -1,6 +1,6 @@
 #include "snakearea.h"
 #include "ui_snakearea.h"
-#include "snakecontrol.h"
+#include "snakecontrolmanager.h"
 #include "snake.h"
 #include "snakefunctions.h"
 
@@ -11,9 +11,9 @@
 
 SnakeArea::SnakeArea(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SnakeArea), colls(40), rows(20), fields(new int[colls*rows]), max(0), counter(0),timeout(130),
+    ui(new Ui::SnakeArea), colls(24), rows(12), fields(new int[colls*rows]),
     snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420, fields)), key(snake->getDirection()),
-    timer(new QTimer(this)), sc(new SnakeControl())
+    timer(new QTimer(this)), scm(new SnakeControlManager())
 {
     ui->setupUi(this);    
     initFields();
@@ -131,20 +131,13 @@ void SnakeArea::insertFood(){
 }
 
 void SnakeArea::moveSnake(){        
-    if(!sc->moveSnake() || --timeout == 0){
-        if( counter > max){
-            max = counter;
-        }
-        counter = 0;
-        timeout = 130;
-        setWindowTitle(QString::number(max));
-        restart();        
-        delete sc;
-        sc = new SnakeControl();
+    if(!scm->runSnakes()){
+        setWindowTitle("Snake #" + QString::number(scm->getBest()) + " is the best");
+        restart();                        
     }
     if(snake->isFoodEaten()){
         insertFood();
-        ++counter;
+        scm->increaseCurrentResult();
     }
     update();    
 }

@@ -3,13 +3,15 @@ SOURCES += \
     snakearea.cpp \
     snake.cpp \
     snakecontrol.cpp \
-    snakefunctions.cpp
+    snakefunctions.cpp \
+    snakecontrolmanager.cpp
 
 HEADERS += \
     snakearea.h \
     snake.h \
+    snakefunctions.h \
     snakecontrol.h \
-    snakefunctions.h
+    snakecontrolmanager.h
 
 FORMS += \
     snakearea.ui
