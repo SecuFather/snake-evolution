@@ -1,18 +1,17 @@
 #include "snakearea.h"
 #include "ui_snakearea.h"
-#include "snake.h"
+#include "snakecontrol.h"
 
 #include <QPainter>
 #include <QKeyEvent>
 #include <QTime>
 #include <QTimer>
 
-
-#include "snakefunctions.h"
+SnakeControl *sc = new SnakeControl();
 
 SnakeArea::SnakeArea(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SnakeArea), colls(40), rows(20), fields(new int[colls*rows]),
+    ui(new Ui::SnakeArea), colls(20), rows(20), fields(new int[colls*rows]), max(0), counter(0),
     snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420, fields)), key(snake->getDirection()),
     timer(new QTimer(this))
 {
@@ -21,7 +20,9 @@ SnakeArea::SnakeArea(QWidget *parent) :
     qsrand(QTime().currentTime().msecsTo(QTime(0,0)));
     insertFood();
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(moveSnake()));
-    timer->start(300);
+    timer->start(50);
+
+    SnakeFunction::setSnake(snake);
 }
 
 SnakeArea::~SnakeArea()
@@ -130,50 +131,24 @@ void SnakeArea::insertFood(){
 }
 
 void SnakeArea::moveSnake(){
-    if(!snake->move2(key)){
+    //if(!snake->move2(key)){
+    //    restart();
+    //}
+    if(!sc->moveSnake()){
+        if( counter > max){
+            max = counter;
+        }
+        counter = 0;
+        setWindowTitle(QString::number(max));
         restart();
     }
-    update();
-    resetKey();
     if(snake->isFoodEaten()){
         insertFood();
+        ++counter;
     }
-    int k = 11;
-    int w = -1;
-    int r = -1;
-    SnakeFunction **sf = new SnakeFunction*[k];
-    SnakeFunction::snake = snake;
-    sf[++w] = new IsMovingRight();
-    sf[++w] = new IsMovingLeft();
-    sf[++w] = new IsMovingUp();
-    sf[++w] = new IsMovingDown();
+    update();
+    //resetKey();
 
-    sf[++w] = new IsFoodAhead();
-    sf[++w] = new IsFoodRight();
-    sf[++w] = new IsFoodLeft();
-
-    sf[++w] = new IsDangerAhead();
-    sf[++w] = new IsDangerLeft();
-    sf[++w] = new IsDangerRight();
-    sf[++w] = new IsDangerTwoAhead();
-    qDebug("-----------------");
-    qDebug(("isMovingRight " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isMovingLeft " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isMovingUp " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isMovingDown " + QString::number(sf[++r]->exec())).toAscii());
-
-    qDebug(("isFoodAhead " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isFoodRight " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isFoodLeft " + QString::number(sf[++r]->exec())).toAscii());
-
-    qDebug(("isDangerAhead " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isDangerLeft " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isDangerRight " + QString::number(sf[++r]->exec())).toAscii());
-    qDebug(("isDangerTwoAhead " + QString::number(sf[++r]->exec())).toAscii());
-    for(int i=0; i<k; ++i){
-        delete sf[i];
-    }
-    delete[] sf;
 }
 
 void SnakeArea::resetKey(){

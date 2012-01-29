@@ -7,8 +7,14 @@ class SnakeFunction{
 public:
     virtual int exec()=0;
     static Snake *snake;
+
+    static void setSnake(Snake *snake){
+        SnakeFunction::snake = snake;
+    }
+
+    static const int LEAF = 77;
+    static const int CRASH = 777;
 };
-Snake *SnakeFunction::snake = 0;
 
 class IsMovingRight: public SnakeFunction{
 public:
@@ -61,6 +67,45 @@ class IsDangerTwoAhead: public SnakeFunction{
 public:
     virtual int exec(){
         return (snake->sgn(snake->findDanger() & Snake::DANGER__TWO_AHEAD)+1)%2;
+    }
+};
+class Progn: public SnakeFunction{
+public:
+    Progn() : result(0){}
+    virtual int exec(){
+        return result = (result + 1)%2;
+    }
+protected:
+    int result;
+};
+class GoLeft: public SnakeFunction{
+public:
+    virtual int exec(){
+        if(snake->move(Snake::GO_LEFT)){
+            return SnakeFunction::LEAF;
+        }else{
+            return SnakeFunction::CRASH;
+        }
+    }
+};
+class GoRight: public SnakeFunction{
+public:
+    virtual int exec(){
+        if(snake->move(Snake::GO_RIGHT)){
+            return SnakeFunction::LEAF;
+        }else{
+            return SnakeFunction::CRASH;
+        }
+    }
+};
+class GoForward: public SnakeFunction{
+public:
+    virtual int exec(){
+        if(snake->move(Snake::GO_FORWARD)){
+            return SnakeFunction::LEAF;
+        }else{
+            return SnakeFunction::CRASH;
+        }
     }
 };
 

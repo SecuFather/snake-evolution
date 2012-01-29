@@ -2,7 +2,8 @@ SOURCES += \
     main.cpp \
     snakearea.cpp \
     snake.cpp \
-    snakecontrol.cpp
+    snakecontrol.cpp \
+    snakefunctions.cpp
 
 HEADERS += \
     snakearea.h \

@@ -31,7 +31,7 @@ public slots:
 private:
     Ui::SnakeArea *ui;
 protected:
-    int colls, rows, *fields;
+    int colls, rows, *fields, max, counter;
     Snake *snake;        
     int key;
     QTimer *timer;

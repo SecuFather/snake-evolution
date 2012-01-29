@@ -14,7 +14,7 @@ Snake::~Snake(){
 }
 
 bool Snake::move(int order){
-    if(abs(order) > 1){
+     if(abs(order) > 1){
         order = -(order % 2);
     }
     foodEaten = false;
@@ -52,7 +52,7 @@ bool Snake::move(int order){
         }
         break;
     }
-    if(snake[0] == food){
+    if(temp == food){
         foodEaten = true;
         ++length;
     }
