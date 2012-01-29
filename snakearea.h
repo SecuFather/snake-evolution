@@ -7,6 +7,7 @@
 class Snake;
 class QPainter;
 class QTimer;
+class SnakeControl;
 
 namespace Ui {
 class SnakeArea;
@@ -31,10 +32,11 @@ public slots:
 private:
     Ui::SnakeArea *ui;
 protected:
-    int colls, rows, *fields, max, counter;
+    int colls, rows, *fields, max, counter, timeout;
     Snake *snake;        
     int key;
     QTimer *timer;
+    SnakeControl *sc;
 
     void initFields();
     void initPainter(QPainter *painter);

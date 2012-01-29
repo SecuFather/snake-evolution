@@ -14,6 +14,9 @@ public:
 
     static const int LEAF = 77;
     static const int CRASH = 777;
+    static const int FUNCTION_COUNT = 12;
+    static const int ACTION_COUNT = 3;
+    static const int SENSOR_COUNT = 9;
 };
 
 class IsMovingRight: public SnakeFunction{
