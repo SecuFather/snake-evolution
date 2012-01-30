@@ -1,6 +1,7 @@
 #include "snakearea.h"
 #include "ui_snakearea.h"
 #include "snakecontrolmanager.h"
+#include "snakecontrol.h"
 #include "snake.h"
 #include "snakefunctions.h"
 
@@ -132,14 +133,16 @@ void SnakeArea::insertFood(){
 
 void SnakeArea::moveSnake(){        
     if(!scm->runSnakes()){
-        setWindowTitle("Snake #" + QString::number(scm->getBest()) + " is the best");
+        setWindowTitle("Snake #" + QString::number(scm->getBest()) + " is the best(" +
+                       QString::number(SnakeControl::getMax()) + ")" +
+                       " " + QString::number(scm->getGeneration()) + ". generation");
         restart();                        
     }
     if(snake->isFoodEaten()){
         insertFood();
         scm->increaseCurrentResult();
     }
-    update();    
+    update();
 }
 
 void SnakeArea::resetKey(){

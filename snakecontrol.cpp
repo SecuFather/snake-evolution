@@ -12,6 +12,15 @@ SnakeControl::SnakeControl() :
     }
     for(int i=n/2; i<n; ++i){
         sf[i] = randomAction();
+
+    }
+}
+
+SnakeControl::SnakeControl(SnakeControl *sc) :
+    n(sc->n), counter(sc->counter), timeout(sc->timeout){
+    sf = new SnakeFunction*[n];
+    for(int i=0; i<n; ++i){
+        sf[i] = sc->sf[i]->copy();
     }
 }
 
@@ -23,7 +32,7 @@ SnakeControl::~SnakeControl(){
 }
 
 SnakeFunction *SnakeControl::randomFunction(int x, int y){
-    switch(qrand() % x + y){
+    switch(qrand() % x + y){ //chujnia
     case 0:
         return new GoLeft();
         break;
@@ -76,17 +85,45 @@ SnakeFunction *SnakeControl::randomAction(){
 bool SnakeControl::moveSnake(){
     int pos = 0;
     int k = 1;
-    int ans = sf[pos]->exec();
+    int t = 0;
+    int ans = sf[pos]->exec();    
 
-    while(ans != SnakeFunction::LEAF && ans != SnakeFunction::CRASH && pos < n){
-        pos += k + (pos+1)/2 + ans;
-        ans = sf[pos]->exec();
+    while(ans != SnakeFunction::LEAF && ans != SnakeFunction::CRASH && pos < n/2){
+        t = 2*(pos-k+1);
         k *= 2;
+        pos = t + k-1 + ans;
+        ans = sf[pos]->exec();        
     }
     if(ans == SnakeFunction::CRASH || --timeout == 0){
         return false;
     }else{
         return true;
+    }
+}
+
+void SnakeControl::cross(SnakeControl *src, int part, int inv){
+    int pos=0;
+    int k=1;
+    int p=1;
+    int t=0;
+
+    for(int i=0; i<part; ++i){
+        t = 2*(pos-k+1);
+        k *= 2;
+        pos = t + k-1 + inv;
+    }
+    delete sf[pos];
+    sf[pos] = src->sf[pos]->copy();    
+
+    while(pos < n/2){
+        t = 2*(pos-k+1);
+        k *= 2;
+        pos = t + k-1;
+        for(int j=pos; j<pos+p; ++j){
+            delete sf[pos];
+            sf[pos] = src->sf[pos]->copy();
+        }
+        p *= 2;
     }
 }
 

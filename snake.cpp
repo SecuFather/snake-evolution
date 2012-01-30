@@ -2,7 +2,7 @@
 
 Snake::Snake(int colls, int rows, int xy0, int d0, int food, int *fields):
     colls(colls), rows(rows), length(xy0+1), snake(new int[colls*rows]),
-    direction(d0), last(0), food(food), foodEaten(false), fields(fields)
+    direction(d0), last(0), food(food), fields(fields), foodEaten(false)
 {
     for(int i=0; i<length; ++i){
         snake[i] = length-1-i;
@@ -116,6 +116,7 @@ int Snake::findFood(){
         }
         break;
     }
+    return Snake::FOOD_BEHIND;
 }
 
 int Snake::findDanger(){
