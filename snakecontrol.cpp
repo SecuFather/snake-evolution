@@ -4,8 +4,8 @@
 
 int SnakeControl::max = -1;
 
-SnakeControl::SnakeControl() :
-    n(65535), counter(0), timeout(SnakeControl::TIMEOUT){
+SnakeControl::SnakeControl(int generation) :
+    n(65535), counter(0), timeout(SnakeControl::TIMEOUT), generation(generation), myMax(0){
     sf = new SnakeFunction*[n];
     for(int i=0; i<n/2; ++i){
         sf[i] = randomSensor();
@@ -17,7 +17,8 @@ SnakeControl::SnakeControl() :
 }
 
 SnakeControl::SnakeControl(SnakeControl *sc) :
-    n(sc->n), counter(sc->counter), timeout(sc->timeout){
+    n(sc->n), counter(0), timeout(sc->timeout), generation(sc->generation), myMax(sc->myMax){
+
     sf = new SnakeFunction*[n];
     for(int i=0; i<n; ++i){
         sf[i] = sc->sf[i]->copy();
@@ -32,7 +33,7 @@ SnakeControl::~SnakeControl(){
 }
 
 SnakeFunction *SnakeControl::randomFunction(int x, int y){
-    switch(qrand() % x + y){ //chujnia
+    switch(qrand() % x + y){
     case 0:
         return new GoLeft();
         break;
@@ -125,6 +126,14 @@ void SnakeControl::cross(SnakeControl *src, int part, int inv){
         }
         p *= 2;
     }
+    setGeneration(src->getGeneration());
+}
+
+void SnakeControl::increaseResult(){{
+    if(++counter > myMax){
+        myMax = counter;
+    }
+    timeout = SnakeControl::TIMEOUT; }
 }
 
 bool SnakeControl::setMax(int x){

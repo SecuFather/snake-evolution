@@ -18,6 +18,8 @@ class SnakeArea : public QDialog
     Q_OBJECT
     
 public:
+    static const int START_LENGTH = 10;
+
     explicit SnakeArea(QWidget *parent = 0);
     ~SnakeArea();
 
@@ -43,6 +45,8 @@ protected:
     void drawCells(QPainter *painter);
     QBrush getBrush(int i);        
     void restart();    
+    void initList();
+    void updateInfo();
 
     inline int xy(int x, int y)const { return y*colls + x; }    
 };

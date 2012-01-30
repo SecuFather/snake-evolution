@@ -13,8 +13,8 @@
 SnakeArea::SnakeArea(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SnakeArea), colls(24), rows(12), fields(new int[colls*rows]),
-    snake(new Snake(colls, rows, 10, Snake::MOVING_RIGHT, 420, fields)), key(snake->getDirection()),
-    timer(new QTimer(this)), scm(new SnakeControlManager())
+    snake(new Snake(colls, rows, SnakeArea::START_LENGTH, Snake::MOVING_RIGHT, 420, fields)),
+    key(snake->getDirection()), timer(new QTimer(this)), scm(new SnakeControlManager())
 {
     ui->setupUi(this);    
     initFields();
@@ -22,8 +22,8 @@ SnakeArea::SnakeArea(QWidget *parent) :
     insertFood();
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(moveSnake()));
     timer->start(50);
-
     SnakeFunction::setSnake(snake);
+    initList();
 }
 
 SnakeArea::~SnakeArea()
@@ -35,7 +35,7 @@ SnakeArea::~SnakeArea()
 }
 
 void SnakeArea::paintEvent(QPaintEvent *){
-    QPainter painter(this);    
+    QPainter painter(this);
     initPainter(&painter);
     drawCells(&painter);
 }
@@ -79,8 +79,8 @@ void SnakeArea::initPainter(QPainter *painter){
 }
 
 void SnakeArea::drawCells(QPainter *painter){
-    int cellWidth=width()/colls;
-    int cellHeight=height()/rows;
+    int cellWidth=ui->gameWidget->width()/colls;
+    int cellHeight=ui->gameWidget->height()/rows;
 
     fields[snake->getLast()] = Snake::FIELD_CODE; //background color
     fields[snake->getFood()] = Snake::FOOD_CODE; //food's color
@@ -116,14 +116,35 @@ QBrush SnakeArea::getBrush(int i){
 
 void SnakeArea::restart(){
     initFields();
-    snake->restart(10, Snake::MOVING_RIGHT);
+    snake->restart(SnakeArea::START_LENGTH, Snake::MOVING_RIGHT);
+}
+
+void SnakeArea::initList(){
+    ui->snakeList->setIconSize(QSize(30, 30));
+    for(int i=0; i<SnakeControlManager::PARENTS; ++i){
+        QListWidgetItem *item = new QListWidgetItem("no data yet", ui->snakeList);
+        item->setIcon(QIcon::fromTheme("help-about"));
+        item->setData(Qt::UserRole, i);
+    }
+}
+
+void SnakeArea::updateInfo(){
+    setWindowTitle("Snake #" + QString::number(scm->getCurrent()) + " is running | " +
+                   "Best result: " + QString::number(SnakeControl::getMax()) + " | " +
+                   "Generation: " + QString::number(scm->getGeneration()));
+    for(int i=0; i<SnakeControlManager::PARENTS; ++i){
+        ui->snakeList->item(i)->setText("Snake #" + QString::number(i+1) + ": " +
+                                        "Generation: " + QString::number(scm->getGeneration(i)) + " | "
+                                        "Best result: " + QString::number(scm->getMax(i)));
+    }
 }
 
 void SnakeArea::insertFood(){
     int x = qrand()%(colls*rows);
     int *s = snake->getSnake();
     for(int i=0; i<snake->getLenght(); ++i){
-        if(x == s[i]){
+        if(x == s[i] ||
+                (x < SnakeArea::START_LENGTH + rows*colls/2 && x >= rows*colls/2)){
             i=-1;
             x = qrand()%(colls*rows);
         }
@@ -133,9 +154,7 @@ void SnakeArea::insertFood(){
 
 void SnakeArea::moveSnake(){        
     if(!scm->runSnakes()){
-        setWindowTitle("Snake #" + QString::number(scm->getBest()) + " is the best(" +
-                       QString::number(SnakeControl::getMax()) + ")" +
-                       " " + QString::number(scm->getGeneration()) + ". generation");
+        updateInfo();
         restart();                        
     }
     if(snake->isFoodEaten()){

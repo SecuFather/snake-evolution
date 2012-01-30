@@ -6,7 +6,7 @@ SnakeControlManager::SnakeControlManager() : n(16), current(0), best(new int[n])
 {            
     sc = new SnakeControl*[n];
     for(int i=0; i<n; ++i){
-        sc[i] = new SnakeControl();
+        sc[i] = new SnakeControl(generation);
     }
 }
 
@@ -59,9 +59,14 @@ void SnakeControlManager::insert(int x, int *tabBest, int *tabBestIndex, int siz
 void SnakeControlManager::cross(){
     SnakeControl **temp = new SnakeControl*[4];
     int half=n/2, quarter=n/4, threeQuearters = n-quarter;
+    ++generation;
 
     for(int i=0; i<quarter; ++i){
-        temp[i] = new SnakeControl(sc[sortedSc[i]]);
+        if(sc[sortedSc[i]]->getMyMax()){
+            temp[i] = new SnakeControl(sc[sortedSc[i]]);
+        }else{
+            temp[i] = new SnakeControl(generation);
+        }
     }
     for(int i=0; i<n; ++i){
         delete sc[i];
@@ -73,7 +78,7 @@ void SnakeControlManager::cross(){
         for(int i=0; i<quarter; ++i){
             sc[i+quarter] = new SnakeControl(temp[i]);
             sc[i+half] = new SnakeControl(temp[i]);
-            sc[i+threeQuearters] = new SnakeControl();
+            sc[i+threeQuearters] = new SnakeControl(generation);
             for(int j=1; j<quarter; ++j){
                 sc[i+quarter]->cross(sc[(i+j)%4], j, 0);
                 sc[i+half]->cross(sc[(i+j)%4], j, 1);
@@ -82,7 +87,7 @@ void SnakeControlManager::cross(){
         }
     }else{
         for(int i=0; i<n; ++i){
-            sc[i] = new SnakeControl();
+            sc[i] = new SnakeControl(generation);
         }
     }
 
@@ -95,6 +100,12 @@ void SnakeControlManager::resetBest(){
         best[i] = 0;
         sortedSc[i] = 0;
     }
-    current=0;
-    ++generation;
+    current=0;    
+}
+
+int SnakeControlManager::getGeneration(int at){
+    return sc[at]->getGeneration();
+}
+int SnakeControlManager::getMax(int at){
+    return sc[at]->getMyMax();
 }

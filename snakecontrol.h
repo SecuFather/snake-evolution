@@ -10,7 +10,7 @@ public:
     static int getMax(){ return SnakeControl::max; }
     static bool setMax(int x);
 
-    SnakeControl();
+    SnakeControl(int generation);
     SnakeControl(SnakeControl *sc);
     ~SnakeControl();
 
@@ -19,14 +19,18 @@ public:
     bool moveSnake();
     void cross(SnakeControl *src, int part, int inv);
 
-    inline void increaseResult(){ ++counter; timeout = SnakeControl::TIMEOUT; }
+
+    void increaseResult();
     inline int getResult()const{ return counter; }
+    inline int getGeneration()const{ return generation; }
+    inline void setGeneration(int x){ if(x > generation) generation = x; }
+    inline int getMyMax()const{ return myMax; }
     
 protected:    
     static int max;
 
     SnakeFunction **sf;
-    int n, counter, timeout;
+    int n, counter, timeout, generation, myMax;
 
     SnakeFunction *randomFunction(int x, int y);
 };

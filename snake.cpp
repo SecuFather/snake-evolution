@@ -5,7 +5,7 @@ Snake::Snake(int colls, int rows, int xy0, int d0, int food, int *fields):
     direction(d0), last(0), food(food), fields(fields), foodEaten(false)
 {
     for(int i=0; i<length; ++i){
-        snake[i] = length-1-i;
+        snake[i] = rows*colls/2 + length-1-i;
     }
 }
 
@@ -77,7 +77,7 @@ void Snake::restart(int xy0, int d0){
     length = xy0;
     direction = d0;
     for(int i=0; i<xy0; ++i){
-        snake[i] = xy0-1-i;
+        snake[i] = rows*colls/2 + xy0-1-i;
     }
 }
 
