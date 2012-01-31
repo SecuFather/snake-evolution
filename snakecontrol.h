@@ -1,6 +1,7 @@
 #ifndef SNAKECONTROL_H
 #define SNAKECONTROL_H
 
+class QString;
 class SnakeFunction;
 
 class SnakeControl{
@@ -17,14 +18,14 @@ public:
     SnakeFunction *randomSensor();
     SnakeFunction *randomAction();
     bool moveSnake();
-    void cross(SnakeControl *src, int part, int inv);
-
-
+    void cross(SnakeControl *src, int part, int inv, bool random=false);
     void increaseResult();
+    QString getTree(int at);
+
     inline int getResult()const{ return counter; }
     inline int getGeneration()const{ return generation; }
     inline void setGeneration(int x){ if(x > generation) generation = x; }
-    inline int getMyMax()const{ return myMax; }
+    inline int getMyMax()const{ return myMax; }    
     
 protected:    
     static int max;

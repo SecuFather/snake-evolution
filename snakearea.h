@@ -30,6 +30,7 @@ public:
     void insertFood();
 public slots:
     void moveSnake();
+    void pauseSnake();
 
 private:
     Ui::SnakeArea *ui;
@@ -39,6 +40,7 @@ protected:
     int key;
     QTimer *timer;
     SnakeControlManager *scm;
+    bool displayOn;
 
     void initFields();
     void initPainter(QPainter *painter);

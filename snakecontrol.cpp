@@ -17,7 +17,7 @@ SnakeControl::SnakeControl(int generation) :
 }
 
 SnakeControl::SnakeControl(SnakeControl *sc) :
-    n(sc->n), counter(0), timeout(sc->timeout), generation(sc->generation), myMax(sc->myMax){
+    n(sc->n), counter(0), timeout(SnakeControl::TIMEOUT), generation(sc->generation), myMax(sc->myMax){
 
     sf = new SnakeFunction*[n];
     for(int i=0; i<n; ++i){
@@ -89,58 +89,93 @@ bool SnakeControl::moveSnake(){
     int t = 0;
     int ans = sf[pos]->exec();    
 
-    while(ans != SnakeFunction::LEAF && ans != SnakeFunction::CRASH && pos < n/2){
+    while(ans != SnakeFunction::LEAF && ans != SnakeFunction::CRASH && pos < n/2+1){
         t = 2*(pos-k+1);
         k *= 2;
         pos = t + k-1 + ans;
         ans = sf[pos]->exec();        
     }
-    if(ans == SnakeFunction::CRASH || --timeout == 0){
+    if(ans == SnakeFunction::CRASH || --timeout <= 0){
         return false;
     }else{
         return true;
     }
 }
 
-void SnakeControl::cross(SnakeControl *src, int part, int inv){
+void SnakeControl::cross(SnakeControl *src, int part, int inv, bool random){
     int pos=0;
     int k=1;
     int p=1;
-    int t=0;
-
+    int t=0;    
     for(int i=0; i<part; ++i){
         t = 2*(pos-k+1);
         k *= 2;
         pos = t + k-1 + inv;
+        inv = 1;
     }
     delete sf[pos];
-    sf[pos] = src->sf[pos]->copy();    
+    if(random){
+        if(pos >= n/2){
+            sf[pos] = randomAction();
+        }else{
+            sf[pos] = randomSensor();
+        }
+    }else{
+        sf[pos] = src->sf[pos]->copy();
+    }
 
     while(pos < n/2){
         t = 2*(pos-k+1);
         k *= 2;
         pos = t + k-1;
         for(int j=pos; j<pos+p; ++j){
-            delete sf[pos];
-            sf[pos] = src->sf[pos]->copy();
+            delete sf[j];
+            if(random){
+                if(j >= n/2){
+                    sf[j] = randomAction();
+                }else{
+                    sf[j] = randomSensor();
+                }
+            }else{
+                sf[pos] = src->sf[pos]->copy();
+            }
         }
         p *= 2;
-    }
-    setGeneration(src->getGeneration());
+    }    
+    myMax = 0;
 }
 
-void SnakeControl::increaseResult(){{
+void SnakeControl::increaseResult(){
     if(++counter > myMax){
         myMax = counter;
     }
-    timeout = SnakeControl::TIMEOUT; }
+    timeout = SnakeControl::TIMEOUT;
 }
+
+
+QString SnakeControl::getTree(int at){
+    QString result;
+    int k=1;
+    int pos=0;
+    result.append("Snake #" + QString::number(at) + " ----------------");
+    while(pos < n/2+1){
+        result.append("\n");
+        for(int i=pos; i<pos+k; ++i){
+            result.append(sf[i]->name() + ", ");
+        }
+        pos += k;
+        k *= 2;
+    }
+    result.append("\n------------------------------------");
+    return result;
+}
+
 
 bool SnakeControl::setMax(int x){
     if(x > SnakeControl::max){
         SnakeControl::max = x;
         return true;
     }else{
-        return false;
+        return false;        
     }
 }
